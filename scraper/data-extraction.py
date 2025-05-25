@@ -116,9 +116,39 @@ def download_csv(url: str, dest_folder: str = "csv_files") -> str:
         return ""
 '''
 
+def get_last_data() -> tuple[str, str]:
+    """
+    Retrieves the latest year and month that has been processed.
+    Returns:
+        tuple: (last_year, last_month) if data exists, otherwise ("", "").
+    """
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(script_dir, "files-data.json")
+    if not os.path.exists(json_path):
+        logging.error("The JSON file does not exist.")
+        return "", ""
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    if not data:
+        logging.error("No data found in the JSON file.")
+        return "", ""
+
+    last_entry = data[0]
+    last_year = last_entry.get("year", "")
+    last_month = last_entry.get("month", "")
+
+    return last_year, last_month
+
 
 def main():
-    get_data(MAIN_URL)
+    #get_data(MAIN_URL)
+    last_year, last_month = get_last_data()
+    if last_year != "" and last_month != "":
+        logging.info(f"Last data is from {last_year} {last_month}")
+    else:
+        logging.error("Could not retrieve the last data.")
 
 
 if __name__ == "__main__":
